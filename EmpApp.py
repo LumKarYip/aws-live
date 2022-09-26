@@ -281,6 +281,7 @@ def EditEmp():
     try:
 
     cursor.execute(fetch_sql, (first_name, last_name, pri_skill, location, emp_image_file, emp_id))
+    cursor.execute(insert_payroll, (emp_id, first_name, last_name, hourly_rate, hours_worked, leave_day, monthly_salary))
     
     cursor.execute ("update payroll A, employee B set hourly_rate = 10, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Cloud Computing'")
     cursor.execute ("update payroll A, employee B set hourly_rate = 15, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'R Programming'")
@@ -291,7 +292,7 @@ def EditEmp():
     cursor.execute ("update payroll A, employee B set hourly_rate = 40, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Machine Learning'")
     
     #update monthly salary in payroll table
-    cur.execute ("update payroll set monthly_salary = (hours_worked * hourly_rate)")
+    cursor.execute ("update payroll set monthly_salary = (hours_worked * hourly_rate)")
         
     #insert month
     update_month_sql = "update payroll set month = MONTHNAME(CURDATE()) where emp_id = (%s)"

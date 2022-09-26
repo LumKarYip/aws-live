@@ -229,7 +229,7 @@ def RemEmp():
 
     try:
         cursor.execute(fetch_sql, (emp_id))
-        cursor.execute(fetch_sql1, (emp_id))
+        cur.execute(fetch_sql1, (emp_id))
         db_conn.commit()
 
         s3 = boto3.client('s3')

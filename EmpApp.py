@@ -224,7 +224,7 @@ def RemEmp():
     emp_id = request.form['emp_id']
     
     fetch_sql = "DELETE FROM employee WHERE emp_id = %s"
-fetch_sql1 = "DELETE from payroll WHERE emp_id = %s"
+    fetch_sql1 = "DELETE from payroll WHERE emp_id = %s"
     cursor = db_conn.cursor()
 
     try:

@@ -19,6 +19,7 @@ db_conn = connections.Connection(
 )
 output = {}
 table = 'employee'
+table = 'payroll'
 
 # home
 @app.route("/", methods=['GET', 'POST'])
@@ -75,6 +76,11 @@ def ToRemAttendance():
 def ToEditAttendance():
     return render_template('EditAttendance.html')
 
+#Redirect Payroll 
+@app.route("/topayroll", methods=['GET', 'POST'])
+def toPayroll():
+    return render_template('Payroll.html')
+
 # Add Employee Function
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
@@ -86,6 +92,7 @@ def AddEmp():
     emp_image_file = request.files['emp_image_file']
 
     insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s, %s)"
+    insert_payroll = "INSERT INTO payroll VALUES (%s, %s, %s, %s, %s, %s, %s)"
     cursor = db_conn.cursor()
 
     if emp_image_file.filename == "":
@@ -94,6 +101,26 @@ def AddEmp():
     try:
 
         cursor.execute(insert_sql, (emp_id, first_name, last_name, pri_skill, location, emp_image_file))
+        cursor.execute(insert_payroll, (emp_id, first_name, last_name, hourly_rate, hours_worked, leave_day, monthly_salary))
+        #if statements to update hours_worked and hourly_rate in payroll table
+        cursor.execute ("update payroll A, employee B set hourly_rate = 10, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Cloud Computing'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 15, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'R Programming'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 20, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'C++ Programming'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 25, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Java Programming'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 30, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Python Programming'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 35, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'SQL'")
+        cursor.execute ("update payroll A, employee B set hourly_rate = 40, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Machine Learning'")
+
+        # #update monthly salary in payroll table
+        # cursor.execute ("update payroll set monthly_salary = (hours_worked * hourly_rate)")
+        
+        #update monthly salary in payroll table
+        cursor.execute ("update payroll set monthly_salary = (hours_worked * hourly_rate)")
+        
+        #insert month
+        update_month_sql = "update payroll set month = MONTHNAME(CURDATE()) where emp_id = (%s)"
+        cursor.execute(update_month_sql, (emp_id))
+
         db_conn.commit()
         emp_name = "" + first_name + " " + last_name
         # Uplaod image file in S3 #
@@ -197,10 +224,12 @@ def RemEmp():
     emp_id = request.form['emp_id']
     
     fetch_sql = "DELETE FROM employee WHERE emp_id = %s"
+fetch_sql1 = "DELETE from payroll WHERE emp_id = %s"
     cursor = db_conn.cursor()
 
     try:
         cursor.execute(fetch_sql, (emp_id))
+       cur.execute(fetch_sql1, (emp_id))
         db_conn.commit()
 
         s3 = boto3.client('s3')
@@ -252,6 +281,21 @@ def EditEmp():
     try:
 
         cursor.execute(fetch_sql, (first_name, last_name, pri_skill, location, emp_image_file, emp_id))
+
+    cur.execute ("update payroll A, employee B set hourly_rate = 10, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Cloud Computing'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 15, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'R Programming'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 20, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'C++ Programming'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 25, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Java Programming'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 30, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Python Programming'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 35, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'SQL'")
+    cur.execute ("update payroll A, employee B set hourly_rate = 40, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Machine Learning'")
+    
+    #update monthly salary in payroll table
+    cur.execute ("update payroll set monthly_salary = (hours_worked * hourly_rate)")
+        
+    #insert month
+    update_month_sql = "update payroll set month = MONTHNAME(CURDATE()) where emp_id = (%s)"
+    cur.execute(update_month_sql, (emp_id))
         db_conn.commit()
         emp_name = "" + first_name + " " + last_name
         # Uplaod image file in S3 #
@@ -368,6 +412,31 @@ def EditAttend():
     print("all modification done...")
     return render_template('EditAttendanceOutput.html', duty_id=duty_id)
 
+@app.route("/getpayroll", methods=['POST'])
+def getPayroll():
+    emp_id = request.form['emp_id']
+
+    if emp_id == "":
+        errorMsg = "Please fill in all the fields"
+        buttonMsg = "BACK TO PAYROLL PAGE"
+        action = "/topayroll"
+        return render_template('ErrorPage.html', errorMsg=errorMsg, buttonMsg=buttonMsg, action=action)
+
+    cur = db_conn.cursor()
+    select_sql = "SELECT * FROM payroll where emp_id = (%s)"
+
+    cur.execute(select_sql, (emp_id))
+
+    if cur.rowcount == 0:
+        errorMsg = "The employee ID is not exist"
+        buttonMsg = "BACK TO PAYROLL PAGE"
+        action = "/topayroll"
+        return render_template('ErrorPage.html', errorMsg=errorMsg, buttonMsg=buttonMsg, action=action)
+
+
+    data = cur.fetchall()
+
+    return render_template('PayrollOutput.html', data=data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)

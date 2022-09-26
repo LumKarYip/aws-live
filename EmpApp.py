@@ -280,8 +280,8 @@ def EditEmp():
 
     try:
 
-    cursor.execute(fetch_sql, (first_name, last_name, pri_skill, location, emp_image_file, emp_id))
-    db_conn.commit()
+        cursor.execute(fetch_sql, (first_name, last_name, pri_skill, location, emp_image_file, emp_id))
+        db_conn.commit()
         emp_name = "" + first_name + " " + last_name
         # Uplaod image file in S3 #
         emp_image_file_name_in_s3 = "emp-id-" + str(emp_id) + "_image_file"

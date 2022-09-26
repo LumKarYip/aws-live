@@ -281,6 +281,7 @@ def EditEmp():
     try:
 
     cursor.execute(fetch_sql, (first_name, last_name, pri_skill, location, emp_image_file, emp_id))
+    
     cur.execute ("update payroll A, employee B set hourly_rate = 10, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'Cloud Computing'")
     cur.execute ("update payroll A, employee B set hourly_rate = 15, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'R Programming'")
     cur.execute ("update payroll A, employee B set hourly_rate = 20, hours_worked = 8 where A.emp_id = B.emp_id and B.pri_skill = 'C++ Programming'")

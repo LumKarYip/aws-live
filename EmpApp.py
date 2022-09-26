@@ -225,7 +225,7 @@ def RemEmp():
     
     fetch_sql = "DELETE FROM employee WHERE emp_id = %s"
     fetch_sql1 = "DELETE from payroll WHERE emp_id = %s"
-    cursor = db_conn.cursor()
+    cur = db_conn.cursor()
 
     try:
         cursor.execute(fetch_sql, (emp_id))
